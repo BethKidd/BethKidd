@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>First Lines Literary Quiz</title>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+        <script src="First_Lines.js"></script>
+        <style>
+            body {
+                font-family: 'Roboto', sans-serif;
+                color: black;
+                background-color: white;
+            }
+
+            h1 {
+                text-align: center;
+            }
+
+            .quiz-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                margin: auto;
+                width: 45%;
+                padding: 50px;
+                box-sizing: border-box;
+            }
+
+            #question {
+                margin-bottom: 60px;
+            }
+
+            #options button {
+                display: block;
+                margin: 10px 0;
+                font-family: 'Roboto', sans-serif;
+                width: 100%;
+            }
+
+            #guess-again {
+                margin-top: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Beth's Amazing Book Game</h1>
+        <div class="quiz-container">
+            <div id="question"></div>
+            <div id="options"></div>
+            <button id="guess-again" onclick="displayQuestion()">Guess the novel from its first line</button>
+        </div>
+    </body>
+</html>

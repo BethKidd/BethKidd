@@ -69,28 +69,32 @@ function getDetractors(firstLinesIndex) {
 
 //This function displays the question the the user;
 
+let skipCount = 0; // Track the number of skips
+let score = 0; // Track the score
+
 async function displayQuestion() {
-    let { firstLinesIndex, CorrectAnswer } = await generateRandomFirstLine();
-    let [firstDetractor, secondDetractor, thirdDetractor] = getDetractors(firstLinesIndex);
+    // Fetch the data
+    const response = await fetch('First_Lines.json');
+    const novelLinesData = await response.json();
 
-    // Put the MCQ_options in an array
-    let options = [CorrectAnswer, firstDetractor, secondDetractor, thirdDetractor];
+    // Randomly select a first line
+    const firstLinesIndex = Math.floor(Math.random() * novelLinesData.length);
+    const CorrectAnswer = novelLinesData[firstLinesIndex].author;
 
-    // Shuffle the options
-    for (let i = options.length - 1; i > 0; i--) {
-        let j = Math.floor(Math.random() * (i + 1));
-        [options[i], options[j]] = [options[j], options[i]];
-    }
-
-    // Display the question
+    // Display the first line
     const questionElement = document.getElementById('question');
-    questionElement.innerText = novelLinesData[firstLinesIndex].firstLine;
+    questionElement.innerText = novelLinesData[firstLinesIndex].line;
 
     // Display the options
     const optionsElement = document.getElementById('options');
-    optionsElement.innerHTML = options.map(option => `<button>${option}</button>`).join('');
+    optionsElement.innerHTML = '';
+    for (let i = 0; i < novelLinesData[firstLinesIndex].options.length; i++) {
+        const button = document.createElement('button');
+        button.innerText = novelLinesData[firstLinesIndex].options[i];
+        optionsElement.appendChild(button);
+    }
 
-     // Add event listeners to the options buttons
+    // Add event listeners to the options buttons
     const buttons = optionsElement.getElementsByTagName('button');
     for (let i = 0; i < buttons.length; i++) {
         buttons[i].addEventListener('click', function() {
@@ -98,26 +102,40 @@ async function displayQuestion() {
             const div = document.createElement('div');
             div.style.width = 'fit-content';
             div.style.margin = '0 auto';
-            div.style.textAlign = 'center'; // Add this line
+            div.style.textAlign = 'center';
 
             if (this.innerText === CorrectAnswer) {
+                score++; // Increment the score
+
                 // Add the text to the div
                 const text = document.createElement('p');
-                text.innerText = 'Correct! \n \n The answer is ' + CorrectAnswer;
+                text.innerText = ('Correct! \n \n The answer is ' + CorrectAnswer).replace(/"/g, '');
                 div.appendChild(text);
 
                 // Display the author's image
                 const img = document.createElement('img');
                 img.src = novelLinesData[firstLinesIndex].authorImage;
-                img.style.width = '60%'; // Change this line
-                img.style.display = 'block'; // Add this line
-                img.style.margin = '0 auto'; // Add this line
+                img.style.width = '60%';
+                img.style.display = 'block';
+                img.style.margin = '0 auto';
                 div.appendChild(img);
+
+                // Change the button text
+                const buttonElement = document.getElementById('skip');
+                buttonElement.innerText = 'Next Question';
             } else {
                 // Add the text to the div
                 const text = document.createElement('p');
-                text.innerText = 'Incorrect. \n \n The correct answer is ' + CorrectAnswer;
+                text.innerText = ('Incorrect. \n \n The correct answer is ' + CorrectAnswer + '\n \n Score: ' + score).replace(/"/g, '');
                 div.appendChild(text);
+
+                // Add a button to restart the game
+                const button = document.createElement('button');
+                button.innerText = 'Start Again';
+                button.addEventListener('click', function() {
+                    location.reload(); // Reload the page
+                });
+                div.appendChild(button);
             }
 
             optionsElement.innerHTML = '';
@@ -126,7 +144,13 @@ async function displayQuestion() {
         });
     }
 
-    // Change the button text
-    const buttonElement = document.getElementById('guess-again');
-    buttonElement.innerText = 'Guess again';
+    // Change the button text and limit the use of the skip button
+    const buttonElement = document.getElementById('skip');
+    buttonElement.innerText = 'Skip';
+    buttonElement.addEventListener('click', function() {
+        if (skipCount < 3) {
+            skipCount++;
+            displayQuestion();
+        }
+    });
 }
